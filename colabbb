@@ -1,0 +1,113 @@
+EXP1:
+      import socket 
+import threading 
+import time 
+# Function to run the server 
+def run_server(): 
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    server_socket.bind(('0.0.0.0', 9090))  # Use a different port 
+    server_socket.listen(1) 
+    print("Server: Waiting for connection...") 
+    conn, addr = server_socket.accept() 
+    print(f"Server: Connected to {addr}") 
+    data = conn.recv(1024).decode() 
+    print("Server: Received message:", data) 
+    conn.close() 
+    server_socket.close() 
+# Function to run the client 
+def run_client(): 
+    time.sleep(2)  # Ensure the server starts first 
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    client_socket.connect(('127.0.0.1', 9090))  # Match the server port 
+    message = "Hello from Client!" 
+    print("Client: Sending message:", message) 
+    client_socket.send(message.encode()) 
+    client_socket.close() 
+ 
+ 
+# Running both server and client using threads 
+server_thread = threading.Thread(target=run_server) 
+client_thread = threading.Thread(target=run_client) 
+server_thread.start() 
+client_thread.start() 
+server_thread.join() 
+client_thread.join()
+
+OUTPUT:
+      Server: Waiting for connection... 
+Client: Sending message: Server: Connected to ('127.0.0.1', 53050) 
+ Hello from Client! 
+Server: Received message: Hello from Client! 
+      
+EXP2:
+      import socket 
+import threading 
+import time 
+# Function to run the UDP server 
+def run_udp_server(): 
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Create UDP socket 
+    server_socket.bind(('0.0.0.0', 9090))  # Bind to any address on port 9090 
+    print("Server: Waiting for messages...") 
+    # Receive message 
+    data, addr = server_socket.recvfrom(1024)  # Buffer size is 1024 bytes 
+    print(f"Server: Received message '{data.decode()}' from {addr}") 
+    server_socket.close() 
+# Function to run the UDP client 
+def run_udp_client(): 
+    time.sleep(2)  # Wait for the server to start 
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Create UDP socket 
+    message = "Hello from Client!" 
+    print(f"Client: Sending message: {message}") 
+    client_socket.sendto(message.encode(), ('127.0.0.1', 9090))  # Send message to server on port 9090 
+    client_socket.close() 
+# Run the server and client using threads 
+server_thread = threading.Thread(target=run_udp_server) 
+client_thread = threading.Thread(target=run_udp_client) 
+server_thread.start() 
+client_thread.start() 
+server_thread.join() 
+client_thread.join() 
+ 
+ 
+ 
+Output : 
+ 
+Server: Waiting for messages... 
+Client: Sending message: Hello from Client! 
+Server: Received message 'Hello from Client!' from ('127.0.0.1', 55951)
+
+EXP3:
+      Stop-and-Wait ARQ (Automatic Repeat Request) protocol: 
+Python Program: 
+import random, time 
+def sender(frame_id): 
+    print(f"Sending frame {frame_id}") 
+    time.sleep(2); return random.random() > 0.1 
+def receiver(frame_id): 
+    time.sleep(1); print(f"Receiver received frame {frame_id}. Sending ACK."); return True 
+def stop_and_wait_protocol(): 
+    frame_id = 1 
+    while True: 
+        if sender(frame_id):  
+            if receiver(frame_id):  
+                print(f"Acknowledgment received for frame {frame_id}"); frame_id += 1 
+        else: print(f"Retrying frame {frame_id}..."); time.sleep(1) 
+stop_and_wait_protocol() 
+ 
+Output: 
+Sending frame 1 
+Frame 1 sent successfully. 
+Receiver received frame 1. Sending ACK. 
+Acknowledgment received for frame 1 
+Sending frame 2 
+Frame 2 lost. 
+Retrying frame 2... 
+Sending frame 2 
+Frame 2 sent successfully. 
+Receiver received frame 2. Sending ACK. 
+Acknowledgment received for frame 2 
+Sending frame 3 
+Frame 3 sent successfully. 
+Receiver received frame 3. Sending ACK. 
+Acknowledgment received for frame 3
+      
