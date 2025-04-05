@@ -110,4 +110,60 @@ Sending frame 3
 Frame 3 sent successfully. 
 Receiver received frame 3. Sending ACK. 
 Acknowledgment received for frame 3
+
+Network Layer:
+
+class Router:
+    def __init__(self, name):
+        self.name = name
+        self.routing_table = {}
+
+    def add_route(self, destination, next_hop):
+        self.routing_table[destination] = next_hop
+
+    def forward_packet(self, destination):
+        if destination in self.routing_table:
+            next_hop = self.routing_table[destination]
+            print(f"Router {self.name} forwards packet to {next_hop.name}")
+            return next_hop
+        else:
+            print(f"Router {self.name} cannot route to {destination.name}. Packet discarded.")
+            return None
+
+class Host:
+    def __init__(self, name):
+        self.name = name
+
+    def send_packet(self, destination):
+        print(f"Host {self.name} sends packet to {destination.name}")
+
+# Setup routers and hosts
+router1 = Router("Router1")
+router2 = Router("Router2")
+router3 = Router("Router3")
+hostA = Host("HostA")
+hostB = Host("HostB")
+
+# Set up routing tables for each router
+router1.add_route(hostB, router2)
+router2.add_route(hostB, router3)
+router3.add_route(hostB, hostB)
+
+# Simulate packet transmission from HostA to HostB
+hostA.send_packet(hostB)
+
+# Routing the packet through routers
+current_router = router1
+current_router = current_router.forward_packet(hostB)
+if current_router:
+    current_router = current_router.forward_packet(hostB)
+if current_router:
+    current_router = current_router.forward_packet(hostB)
+
+output:
+Host HostA sends packet to HostB
+Router Router1 forwards packet to Router2
+Router Router2 forwards packet to Router3
+Router Router3 forwards packet to HostB
+
       
